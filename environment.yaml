@@ -1,0 +1,11 @@
+name: streamlit
+channels:
+  - snowflake
+dependencies:
+  - streamlit==1.48.0
+  - snowflake-snowpark-python==1.39.0
+  - snowflake.core
+  - snowflake-ml-python
+  - pandas
+  - pypdf2
+  - pdfplumber
