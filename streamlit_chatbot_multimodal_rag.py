@@ -10,10 +10,10 @@ import json
 pd.set_option("max_colwidth",None)
 
 # Cortex Search Service and Source Docs Stage parameters
-CORTEX_SEARCH_DATABASE = "CORTEX_SEARCH_DB"
-CORTEX_SEARCH_SCHEMA = "PYU"
+CORTEX_SEARCH_DATABASE = "TECHUP25"
+CORTEX_SEARCH_SCHEMA = "MULTIMODAL_RAG"
 CORTEX_SEARCH_SERVICE = "DEMO_SEC_CORTEX_SEARCH_SERVICE"
-SOURCE_DOCS_STAGE = "@CORTEX_SEARCH_DB.PYU.MULTIMODAL_DEMO_INTERNAL"
+SOURCE_DOCS_STAGE = "@TECHUP25.MULTIMODAL_RAG.RAW_DOCS_INTERNAL"
 SOURCE_DOCS_PATH = "raw_pdf"
 ######
 
@@ -51,7 +51,7 @@ init_service()
 def config_options():
 
     st.sidebar.selectbox('Select your model:',
-                        ('claude-3-5-sonnet', 'pixtral-large'),
+                        ('claude-4-sonnet', 'pixtral-large'),
                         key="model_name")
 
     st.sidebar.selectbox('Select number of docs to retrieve:',
@@ -189,7 +189,7 @@ def answer_question(myquestion):
     image_files_str = ",\n".join(image_files)
 
     query = f"""
-        SELECT SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet',
+        SELECT SNOWFLAKE.CORTEX.COMPLETE('{st.session_state.model_name}',
             PROMPT('{prompt}',
             {image_files_str})
         );
