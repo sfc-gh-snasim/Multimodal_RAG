@@ -1,5 +1,6 @@
 import streamlit as st # Import python packages
 from snowflake.snowpark.context import get_active_session
+from snowflake.snowpark.exceptions import SnowparkSQLException
 
 from snowflake.cortex import Complete
 from snowflake.core import Root
@@ -203,9 +204,13 @@ def answer_question(myquestion):
 
 def main():
     
-    st.title(f":robot_face: :mag_right: Multimodal RAG Assistant")
+    st.title(f":mag_right: TechUp 2025 Multimodal RAG Assistant")
     st.write("This is the list of documents you already have and that will be used to answer your questions:")
-    docs_available = session.sql(f"ls {SOURCE_DOCS_STAGE}/{SOURCE_DOCS_PATH}").collect()
+    try:
+        docs_available = session.sql(f"ls {SOURCE_DOCS_STAGE}/{SOURCE_DOCS_PATH}").collect()
+    except SnowparkSQLException as e:
+        st.markdown(f'Error listing documents, ensure you have run the notebooks first to create the stage\n{e}')
+        return
     list_docs = [doc["name"] for doc in docs_available]
     for doc in list_docs:
         st.markdown(f"- {doc}")
