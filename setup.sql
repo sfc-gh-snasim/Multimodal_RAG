@@ -36,8 +36,7 @@ CREATE OR REPLACE NETWORK RULE TECHUP_PYPI_NETWORK_RULE MODE = EGRESS TYPE = HOS
   'pypi.org',
   'pypi.python.org',
   'pythonhosted.org',
-  'files.pythonhosted.org',
-  'sheena-tko25-multimodal-rag.s3.amazonaws.com'
+  'files.pythonhosted.org'
 );
 
 CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION TECHUP_PYPI_ACCESS_INTEGRATION
