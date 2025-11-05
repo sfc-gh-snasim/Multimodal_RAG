@@ -1,13 +1,13 @@
 name: streamlit
 channels:
   - snowflake
-  - conda-forge
 dependencies:
-  - streamlit==1.48.0
-  - snowflake-snowpark-python==1.39.0
+  - streamlit
+  - snowflake-snowpark-python
   - snowflake.core
   - snowflake-ml-python
   - pandas
   - pypdf2
   - pdfplumber
   - openai
+  - tqdm
