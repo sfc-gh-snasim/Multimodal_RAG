@@ -1,4 +1,4 @@
--- Common lab setup code
+-- Common lab setup code.
 USE ROLE ACCOUNTADMIN;
 CREATE DATABASE IF NOT EXISTS TECHUP25;
 CREATE SCHEMA IF NOT EXISTS TECHUP25.MULTIMODAL_RAG;
@@ -27,7 +27,6 @@ USE SCHEMA MULTIMODAL_RAG;
 CREATE OR REPLACE API INTEGRATION TECHUP_GIT_INT
     API_PROVIDER = git_https_api
     API_ALLOWED_PREFIXES = ('https://github.com/sfc-gh-snasim')
-    -- ALLOWED_AUTHENTICATION_SECRETS = (sf_git_token)
     ENABLED = TRUE;
 
 GRANT USAGE ON INTEGRATION TECHUP_GIT_INT TO ROLE TECHUP25_RL;
@@ -56,18 +55,8 @@ GRANT USAGE, OPERATE ON COMPUTE POOL TECHUP_COMPUTE_POOL TO ROLE TECHUP25_RL;
 -- Set cross region to AWS US for availability of functions for HOL
 ALTER ACCOUNT SET CORTEX_ENABLED_CROSS_REGION = 'AWS_US';
 
--- Create an external stage to copy raw input data files 
--- Files are also available at https://drive.google.com/drive/folders/1bExhPiJlF9aNushnXeLLBR4m9EMaShHw?usp=sharing
--- Directly download and upload into  internal stage RAW_DOCS_INTERNAL in case of any errors in creating external stage.
-CREATE OR REPLACE STAGE TECHUP25.MULTIMODAL_RAG.RAW_DOCS
-URL='s3://sheena-tko25-multimodal-rag/'
-CREDENTIALS=(AWS_KEY_ID='AKIAXBUYSSFIMDJGVNXL' AWS_SECRET_KEY='zaQQWmgMKa9tMGcjO4HcdMsKn5bJ/FaOhMvL8nut') -- Key only have restricted access to raw_data pdf
-ENCRYPTION=(TYPE='AWS_SSE_KMS' KMS_KEY_ID = 'aws/key');
-
 -- Create an internal stage and copy all files to internal stage (Some functions in this HOL only works on internal stage files)
 CREATE OR REPLACE STAGE TECHUP25.MULTIMODAL_RAG.RAW_DOCS_INTERNAL DIRECTORY = (ENABLE = TRUE) ENCRYPTION = (TYPE = 'SNOWFLAKE_SSE');
-COPY FILES INTO @TECHUP25.MULTIMODAL_RAG.RAW_DOCS_INTERNAL/raw_pdf/
-FROM @TECHUP25.MULTIMODAL_RAG.RAW_DOCS/raw_data/;
 
 GRANT ALL ON stage TECHUP25.MULTIMODAL_RAG.RAW_DOCS_INTERNAL to role TECHUP25_RL;
 
@@ -77,8 +66,13 @@ USE ROLE TECHUP25_RL;
 -- Create a Git integration to copy the whole code from repository  
 CREATE OR REPLACE GIT REPOSITORY  TECHUP25.MULTIMODAL_RAG.TECHUP_MULTIMODAL_RAG
     API_INTEGRATION = TECHUP_GIT_INT
-    -- GIT_CREDENTIALS = SF_GIT_TOKEN
     ORIGIN = 'https://github.com/sfc-gh-snasim/Multimodal_RAG.git';
+
+-- Copy data to internal stage. 
+-- Files are also available at https://drive.google.com/drive/folders/1bExhPiJlF9aNushnXeLLBR4m9EMaShHw?usp=sharing
+COPY FILES INTO '@TECHUP25.MULTIMODAL_RAG.RAW_DOCS_INTERNAL/raw_pdf/'
+FROM '@TECHUP25.MULTIMODAL_RAG.TECHUP_MULTIMODAL_RAG/branches/main/raw_data/'
+PATTERN = '.*\.pdf';
 
 CREATE OR REPLACE NOTEBOOK TECHUP25.MULTIMODAL_RAG.CortexMultimodalSearch
     FROM '@TECHUP25.MULTIMODAL_RAG.TECHUP_MULTIMODAL_RAG/branches/main/' 
